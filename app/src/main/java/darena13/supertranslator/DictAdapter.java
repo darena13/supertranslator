@@ -2,12 +2,14 @@ package darena13.supertranslator;
 
 import android.content.Context;
 import android.util.Log;
+import android.util.StringBuilderPrinter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -55,7 +57,7 @@ public class DictAdapter extends BaseAdapter {
         // используем созданные, но не используемые view
         View view = convertView;
         if (view == null) {
-            view = lInflater.inflate(R.layout.dict_row_layout, parent, false);
+            view = lInflater.inflate(R.layout.dict_layout, parent, false);
             Log.w("getveiw", "Veiw is ready");
         }
 
@@ -64,8 +66,37 @@ public class DictAdapter extends BaseAdapter {
 
         // заполняем View в пункте списка данными
         try {
-            ((TextView) view.findViewById(R.id.dict_row_text)).setText(p.getString("text"));
-            ((TextView) view.findViewById(R.id.dict_row_pos)).setText(p.getString("pos"));
+            ((TextView) view.findViewById(R.id.dict_text)).setText(p.getString("text"));
+            ((TextView) view.findViewById(R.id.dict_pos)).setText(p.getString("pos"));
+
+            //находим и очищаем LinearLayout для вложенного списка
+            LinearLayout list = (LinearLayout) view.findViewById(R.id.dict_tr);
+            list.removeAllViews();
+
+            //массив с вариантами перевода
+            JSONArray trs = p.getJSONArray("tr");
+            for (int pos = 0; pos < trs.length(); pos++) {
+                JSONObject tr = trs.getJSONObject(pos);
+
+                //создаем View c dict_row_layout
+                View row = lInflater.inflate(R.layout.dict_row_layout, parent, false);
+                ((TextView) row.findViewById(R.id.dict_row_text)).setText(tr.getString("text"));
+
+                try {
+                    JSONArray syns = tr.getJSONArray("syn");
+                    StringBuilder synBuilder = new StringBuilder();
+                    for (int synpos = 0; synpos < syns.length(); synpos++) {
+                        if (synpos != 0) synBuilder.append(", ");
+                        synBuilder.append(syns.getJSONObject(synpos).getString("text"));
+                    }
+
+                    ((TextView) row.findViewById(R.id.dict_row_syn)).setText(synBuilder.toString());
+                } catch (JSONException e) {
+                    ((TextView) row.findViewById(R.id.dict_row_syn)).setText("");
+                }
+                list.addView(row);
+            }
+
         } catch (JSONException e) {
             Log.e("getrowerror", e.toString());
         }

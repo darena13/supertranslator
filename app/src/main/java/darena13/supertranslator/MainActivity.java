@@ -41,7 +41,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.net.URL;
 
-import static darena13.supertranslator.R.id.dictionary_list;
 
 public class MainActivity extends AppCompatActivity {
     private SectionsPagerAdapter mSectionsPagerAdapter;//Adapter that will return fragments
@@ -240,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
 //                                    ((EditText)editText).setText(text);
 //                                }
 //                            });
-                            ListView list = (ListView) findViewById(R.id.dictionary_list);
+                            ListView list = (ListView) findViewById(R.id.dict_list);
                             DictAdapter adapter = (DictAdapter) list.getAdapter();
                             adapter.update(dictRows);
                         } catch (JSONException e) {
