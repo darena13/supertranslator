@@ -22,11 +22,6 @@ public class TranslationFormFragment extends Fragment {
 //        Log.e("oncreate", "dictadapt is ready");
         ListView dictListView = (ListView) view.findViewById(R.id.dict_list);
         dictListView.setAdapter(dictAdapter);
-
-//        DictRowAdapter dictRowAdapter = new DictRowAdapter(getContext(), new JSONArray());
-//        ListView dictRowListView = (ListView) view.findViewById(R.id.dictionary_list);
-//        dictListView.setAdapter(dictAdapter);
-
         return view;
     }
 
