@@ -19,7 +19,6 @@ public class TranslationFormFragment extends Fragment {
         View view = inflater.inflate(R.layout.translation_fragment, container, false);
 
         DictAdapter dictAdapter = new DictAdapter(getContext(), new JSONArray());
-//        Log.e("oncreate", "dictadapt is ready");
         ListView dictListView = (ListView) view.findViewById(R.id.dict_list);
         dictListView.setAdapter(dictAdapter);
         return view;

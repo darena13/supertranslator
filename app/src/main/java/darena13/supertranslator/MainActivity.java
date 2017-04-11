@@ -63,19 +63,15 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
-
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
         //creating a request queue
         mRequestQueue = Volley.newRequestQueue(this);
-
-
     }
 
 
@@ -97,7 +93,6 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -202,8 +197,6 @@ public class MainActivity extends AppCompatActivity {
         String textToTranslate;
         String dictionaryRequestUrl;
 
-        //final RelativeLayout relLayout = (RelativeLayout)findViewById(R.id.translation_form);
-
         EditText mEditText = (EditText)findViewById(R.id.textToTranslate);
         textToTranslate = mEditText.getText().toString();
 
@@ -219,26 +212,9 @@ public class MainActivity extends AppCompatActivity {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        //TextView resultsTextView = (TextView)findViewById(R.id.results);
-                        //resultsTextView.setText(response.toString());
                         try {
                             JSONArray dictRows = response.getJSONArray("def");
-                            /*for (int i=0; i < defJSONArray.length(); i++)
-                            {
-                                JSONObject defObject = defJSONArray.getJSONObject(i);
-                                String defObjectItem = defObject.getString("pos"); // "KEKE" + i; //
-                                TextView posTextView = new TextView(getApplicationContext());
-                                posTextView.setText(defObjectItem);
-                                //relLayout.addView(posTextView);
-                            }*/
-                            //TextView resultsTextView = (TextView)findViewById(R.id.results);
-                            //resultsTextView.setText(defJSONArray.getJSONObject(0).getString("pos"));
-//                            getApplicationContext().runOnUiThread(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    ((EditText)editText).setText(text);
-//                                }
-//                            });
+
                             ListView list = (ListView) findViewById(R.id.dict_list);
                             DictAdapter adapter = (DictAdapter) list.getAdapter();
                             adapter.update(dictRows);
