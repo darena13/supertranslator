@@ -13,13 +13,16 @@ import android.widget.ListView;
 import org.json.JSONArray;
 
 public class TranslationFormFragment extends Fragment {
-    private static final String ARG_SECTION_NUMBER = "section_number";
+    //private static final String ARG_SECTION_NUMBER = "section_number";
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.translation_fragment, container, false);
 
+        //создаем адаптер с пустым массивом
         DictAdapter dictAdapter = new DictAdapter(getContext(), new JSONArray());
+        //находим ListView
         ListView dictListView = (ListView) view.findViewById(R.id.dict_list);
+        //назначем ему созданный адаптер
         dictListView.setAdapter(dictAdapter);
         return view;
     }

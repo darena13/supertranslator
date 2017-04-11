@@ -37,11 +37,9 @@ public class DictAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int position) {
-        Log.w("dictadapter", rows.toString());
         try {
             return rows.get(position);
         } catch (JSONException e) {
-            Log.e("dictadapter", e.toString());
             return new JSONObject();
         }
     }
@@ -54,57 +52,59 @@ public class DictAdapter extends BaseAdapter {
     // пункт списка
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        // используем созданные, но не используемые view
+        //"надуваем" View макетом
         View view = convertView;
         if (view == null) {
             view = lInflater.inflate(R.layout.dict_layout, parent, false);
-            Log.w("getveiw", "Veiw is ready");
         }
-
+        //получаем JSONObject для этой position
         JSONObject p = getRow(position);
-        Log.w("getrow", p.toString());
-
         // заполняем View в пункте списка данными
         try {
-            ((TextView) view.findViewById(R.id.dict_text)).setText(p.getString("text"));
+            String text = p.getString("text") + ", ";
+            ((TextView) view.findViewById(R.id.dict_text)).setText(text);
             ((TextView) view.findViewById(R.id.dict_pos)).setText(p.getString("pos"));
-
             //находим и очищаем LinearLayout для вложенного списка
             LinearLayout list = (LinearLayout) view.findViewById(R.id.dict_tr);
             list.removeAllViews();
+            //массив с вариантами перевода - поле tr
+            JSONArray trArray = p.getJSONArray("tr");
+                for (int pos = 0; pos < trArray.length(); pos++) {
+                    //для каждого JSONObject из массива
+                    JSONObject tr = trArray.getJSONObject(pos);
+                    //создаем View c dict_row_layout
+                    View row = lInflater.inflate(R.layout.dict_row_layout, parent, false);
+                    //и помещаем поле text в нужный TextView макета
+                    ((TextView) row.findViewById(R.id.dict_row_text)).setText(tr.getString("text"));
+                    //и добавляем нумерацию
+                    String num = Integer.toString(pos+1) + ". ";
+                    ((TextView) row.findViewById(R.id.dict_row_num)).setText(num);
+//
+//                  try {
+//                    JSONArray syns = tr.getJSONArray("syn");
+//                    StringBuilder synBuilder = new StringBuilder();
+//                    for (int synpos = 0; synpos < syns.length(); synpos++) {
+//                        if (synpos != 0) synBuilder.append(", ");
+//                        synBuilder.append(syns.getJSONObject(synpos).getString("text"));
+//                    }
+//
+//                    ((TextView) row.findViewById(R.id.dict_row_syn)).setText(synBuilder.toString());
+//                } catch (JSONException e) {
+//                    ((TextView) row.findViewById(R.id.dict_row_syn)).setText("");
+//                }
 
-            //массив с вариантами перевода
-            JSONArray trs = p.getJSONArray("tr");
-            for (int pos = 0; pos < trs.length(); pos++) {
-                JSONObject tr = trs.getJSONObject(pos);
 
-                //создаем View c dict_row_layout
-                View row = lInflater.inflate(R.layout.dict_row_layout, parent, false);
-                ((TextView) row.findViewById(R.id.dict_row_text)).setText(tr.getString("text"));
-
-                try {
-                    JSONArray syns = tr.getJSONArray("syn");
-                    StringBuilder synBuilder = new StringBuilder();
-                    for (int synpos = 0; synpos < syns.length(); synpos++) {
-                        if (synpos != 0) synBuilder.append(", ");
-                        synBuilder.append(syns.getJSONObject(synpos).getString("text"));
-                    }
-
-                    ((TextView) row.findViewById(R.id.dict_row_syn)).setText(synBuilder.toString());
-                } catch (JSONException e) {
-                    ((TextView) row.findViewById(R.id.dict_row_syn)).setText("");
-                }
+                //добавляем получившийся View к LinearLayout для вложенного списка
                 list.addView(row);
             }
 
         } catch (JSONException e) {
             Log.e("getrowerror", e.toString());
         }
-
         return view;
     }
 
-    JSONObject getRow(int position) {
+    private JSONObject getRow(int position) {
         return ((JSONObject) getItem(position));
     }
 
