@@ -214,7 +214,6 @@ public class MainActivity extends AppCompatActivity {
                     public void onResponse(JSONObject response) {
                         try {
                             JSONArray dictRows = response.getJSONArray("def");
-
                             ListView list = (ListView) findViewById(R.id.dict_list);
                             DictAdapter adapter = (DictAdapter) list.getAdapter();
                             adapter.update(dictRows);
