@@ -8,9 +8,9 @@ public class HistoryItem {
     private long id;
     private long date;
     private String text;
-    private String translate;
+    private String translation;
     private String language;
-    private String favorite;
+    private long favorite;
 
     public long getId() {
         return id;
@@ -36,12 +36,12 @@ public class HistoryItem {
         this.text = text;
     }
 
-    public String getTranslate() {
-        return translate;
+    public String getTranslation() {
+        return translation;
     }
 
-    public void setTranslate(String translate) {
-        this.translate = translate;
+    public void setTranslation(String translation) {
+        this.translation = translation;
     }
 
     public String getLanguage() {
@@ -52,11 +52,16 @@ public class HistoryItem {
         this.language = language;
     }
 
-    public String getFavorite() {
+    public long getFavorite() {
         return favorite;
     }
 
-    public void setFavorite(String favorite) {
+    public void setFavorite(long favorite) {
         this.favorite = favorite;
+    }
+
+    @Override
+    public String toString() {
+        return text;
     }
 }

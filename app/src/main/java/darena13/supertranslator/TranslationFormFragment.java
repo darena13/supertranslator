@@ -8,7 +8,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Spinner;
 
 import org.json.JSONArray;
 
@@ -24,6 +26,21 @@ public class TranslationFormFragment extends Fragment {
         ListView dictListView = (ListView) view.findViewById(R.id.dict_list);
         //назначем ему созданный адаптер
         dictListView.setAdapter(dictAdapter);
+
+        //выпадающий список для выбора языка, с которого переводим
+        Spinner spinnerLangFrom = (Spinner) view.findViewById(R.id.language_from_spinner);
+        ArrayAdapter<CharSequence> adapterLangFrom = ArrayAdapter.createFromResource(getContext(),
+                R.array.language_array, android.R.layout.simple_spinner_item);
+        adapterLangFrom.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerLangFrom.setAdapter(adapterLangFrom);
+
+        //выпадающий список для выбора языка, на который переводим
+        Spinner spinnerLangTo = (Spinner) view.findViewById(R.id.language_to_spinner);
+        ArrayAdapter<CharSequence> adapterLangTo = ArrayAdapter.createFromResource(getContext(),
+                R.array.language_array, android.R.layout.simple_spinner_item);
+        adapterLangTo.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerLangTo.setAdapter(adapterLangTo);
+
         return view;
     }
 

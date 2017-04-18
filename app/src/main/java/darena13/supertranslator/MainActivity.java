@@ -1,5 +1,7 @@
 package darena13.supertranslator;
 
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -19,9 +21,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.Adapter;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,13 +44,14 @@ import org.json.JSONObject;
 import java.io.EOFException;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
     private SectionsPagerAdapter mSectionsPagerAdapter;//Adapter that will return fragments
     private ViewPager mViewPager;//ViewPager with the sections adapter
 
-    //private DictAdapter dictAdapter;
+    private HistoryDataSource datasource;
 
     private RequestQueue mRequestQueue; //Volley's request queue
     public static final String YANDEX_TRNS_API_URL = "https://translate.yandex.net/api/v1.5/tr.json/translate?";
@@ -54,14 +59,13 @@ public class MainActivity extends AppCompatActivity {
     public static final String TRNS_KEY = "trnsl.1.1.20170323T152914Z.07d329d9a6f367e9.7fc2032da9c680dd945a3f8ba5e65c2cacd82d4b";
     public static final String DICT_KEY = "dict.1.1.20170406T140716Z.aaf26a32ef51e3a4.7e8e7f021bbb2d111099eea26429f7b809d16406";
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        //setSupportActionBar(toolbar);
 
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
         mViewPager = (ViewPager) findViewById(R.id.container);
@@ -69,6 +73,17 @@ public class MainActivity extends AppCompatActivity {
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
+
+        //создаем ДАО
+        datasource = new HistoryDataSource(this);
+        //создаем/открываем БД
+        datasource.open();
+        //получаем список всех объектов в БД
+        List<HistoryItem> values = datasource.getAllItems();
+        //и отдаем его адаптеру
+        ArrayAdapter<HistoryItem> adapterHistory = new ArrayAdapter<HistoryItem>(this,
+                android.R.layout.simple_list_item_1, values);
+        //setListAdapter(adapter);
 
         //creating a request queue
         mRequestQueue = Volley.newRequestQueue(this);
@@ -95,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
 
 
     /**
@@ -274,4 +290,14 @@ public class MainActivity extends AppCompatActivity {
         //Add requests to RequestQueue to execute
         mRequestQueue.add(req);
     }
+
+    public void langSwitch(View view) {
+        Spinner spinnerFrom = (Spinner) findViewById(R.id.language_from_spinner);
+        Spinner spinnerTo = (Spinner) findViewById(R.id.language_to_spinner);
+        int a = (int) spinnerFrom.getSelectedItemId();
+        int b = (int) spinnerTo.getSelectedItemId();
+        spinnerFrom.setSelection(b);
+        spinnerTo.setSelection(a);
+    }
+
 }

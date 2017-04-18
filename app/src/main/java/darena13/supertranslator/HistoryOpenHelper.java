@@ -11,15 +11,16 @@ import android.util.Log;
 
 public class HistoryOpenHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 2;
-    private static final String DATABASE_NAME = "super_translator.db";
-    private static final String HISTORY_TABLE_NAME = "history";
-    private static final String COLUMN_ID = "_id";
-    private static final String COLUMN_DATE = "date";
-    private static final String COLUMN_TEXT = "text";
-    private static final String COLUMN_TRNS = "translate";
-    private static final String COLUMN_LANG = "language";
-    private static final String COLUMN_FAV = "favorite";
+    public static final String DATABASE_NAME = "super_translator.db";
+    public static final String HISTORY_TABLE_NAME = "history";
+    public static final String COLUMN_ID = "_id";
+    public static final String COLUMN_DATE = "date";
+    public static final String COLUMN_TEXT = "text";
+    public static final String COLUMN_TRNS = "translate";
+    public static final String COLUMN_LANG = "language";
+    public static final String COLUMN_FAV = "favorite";
 
+    //запрос на создание таблицы в БД
     private static final String HISTORY_TABLE_CREATE =
             "CREATE TABLE " + HISTORY_TABLE_NAME + " (" +
                     COLUMN_ID + " integer primary key autoincrement, " +
@@ -29,9 +30,9 @@ public class HistoryOpenHelper extends SQLiteOpenHelper {
                     COLUMN_LANG + " text not null, " +
                     COLUMN_FAV + " integer not null);";
 
+    //индексы для полей "date" и "text"
     private static final String DATE_INDEX_CREATE =
             "CREATE INDEX date_index ON " + HISTORY_TABLE_NAME + " (" + COLUMN_DATE + ");";
-
     private static final String TEXT_INDEX_CREATE =
             "CREATE INDEX text_index ON " + HISTORY_TABLE_NAME + " (" + COLUMN_TEXT + ");";
 
@@ -46,6 +47,7 @@ public class HistoryOpenHelper extends SQLiteOpenHelper {
         db.execSQL(TEXT_INDEX_CREATE);
     }
 
+    //всё удаляем и пересоздаем таблицу
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.w(HistoryOpenHelper.class.getName(),

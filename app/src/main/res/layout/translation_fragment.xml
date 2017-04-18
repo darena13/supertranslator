@@ -1,4 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/translation_form"
     android:layout_width="match_parent"
@@ -8,16 +9,39 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="darena13.supertranslator.MainActivity$PlaceholderFragment">
-
+    <LinearLayout
+        android:id="@+id/from_to"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentTop="true">
+        <Spinner
+            android:id="@+id/language_from_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <ImageButton
+            android:id="@+id/switch_lung"
+            android:onClick="langSwitch"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:padding="5dp"
+            app:srcCompat="@drawable/arrows_1" />
+        <Spinner
+            android:id="@+id/language_to_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
     <EditText
         android:id="@+id/textToTranslate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:ems="8"
         android:textSize="20sp"
         android:inputType="none"
-        android:hint="@string/enter"/>
+        android:hint="@string/enter"
+        android:layout_below="@+id/from_to"/>
 
     <Button
         android:id="@+id/button"
@@ -25,6 +49,8 @@
         android:layout_height="wrap_content"
         android:text="@string/translate"
         android:onClick="translate"
+        android:layout_alignBaseline="@+id/textToTranslate"
+        android:layout_alignBottom="@+id/textToTranslate"
         android:layout_alignParentEnd="true" />
 
     <TextView
