@@ -1,11 +1,8 @@
 package darena13.supertranslator;
 
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -13,18 +10,15 @@ import android.support.v4.view.ViewPager;
 
 import android.os.Bundle;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,9 +35,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.EOFException;
-import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 
 
@@ -201,15 +192,15 @@ public class MainActivity extends AppCompatActivity {
 
     public void translate(View view) {
         try {
-            translate1();
+            translateDict();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        translate2();
+        translateTrns();
     }
 
-
-    public void translate1() {
+    //поиск словарной статьи
+    public void translateDict() {
         String textToTranslate;
         String dictionaryRequestUrl;
 
@@ -244,7 +235,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.e("Error: ", error.getMessage());
-                Toast.makeText(MainActivity.this, "HTTP ERROR", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Dictionary ERROR", Toast.LENGTH_SHORT).show();
+                ListView list = (ListView) findViewById(R.id.dict_list);
+                list.setAdapter(null);
             }
         });
 
@@ -252,11 +245,10 @@ public class MainActivity extends AppCompatActivity {
         mRequestQueue.add(req);
     }
 
-    public void translate2() {
+    //перевод предложений
+    public void translateTrns() {
         String textToTranslate;
         String translateRequestUrl;
-
-        //Toast.makeText(MainActivity.this, "NOPE", Toast.LENGTH_SHORT).show();
 
         EditText mEditText = (EditText)findViewById(R.id.textToTranslate);
         textToTranslate = mEditText.getText().toString();
@@ -288,6 +280,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.e("Error: ", error.getMessage());
+                Toast.makeText(MainActivity.this, "HTTP ERROR", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -295,6 +288,7 @@ public class MainActivity extends AppCompatActivity {
         mRequestQueue.add(req);
     }
 
+    //поменять направление перевода
     public void langSwitch(View view) {
         Spinner spinnerFrom = (Spinner) findViewById(R.id.language_from_spinner);
         Spinner spinnerTo = (Spinner) findViewById(R.id.language_to_spinner);
@@ -304,6 +298,7 @@ public class MainActivity extends AppCompatActivity {
         spinnerTo.setSelection(a);
     }
 
+    //lang для URI
     private String getLanguageCode() {
         Spinner spinnerLangFrom = (Spinner) findViewById(R.id.language_from_spinner);
         Spinner spinnerLangTo = (Spinner) findViewById(R.id.language_to_spinner);
@@ -369,129 +364,129 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case 27: langFrom = "id";
                 break;
-            case 30: langFrom = "ga";
+            case 28: langFrom = "ga";
                 break;
-            case 31: langFrom = "it";
+            case 29: langFrom = "it";
                 break;
-            case 32: langFrom = "is";
+            case 30: langFrom = "is";
                 break;
-            case 33: langFrom = "es";
+            case 31: langFrom = "es";
                 break;
-            case 34: langFrom = "kk";
+            case 32: langFrom = "kk";
                 break;
-            case 35: langFrom = "kn";
+            case 33: langFrom = "kn";
                 break;
-            case 36: langFrom = "ca";
+            case 34: langFrom = "ca";
                 break;
-            case 37: langFrom = "ky";
+            case 35: langFrom = "ky";
                 break;
-            case 38: langFrom = "zh";
+            case 36: langFrom = "zh";
                 break;
-            case 39: langFrom = "ko";
+            case 37: langFrom = "ko";
                 break;
-            case 40: langFrom = "xh";
+            case 38: langFrom = "xh";
                 break;
-            case 41: langFrom = "la";
+            case 39: langFrom = "la";
                 break;
-            case 42: langFrom = "lv";
+            case 40: langFrom = "lv";
                 break;
-            case 43: langFrom = "lt";
+            case 41: langFrom = "lt";
                 break;
-            case 44: langFrom = "lb";
+            case 42: langFrom = "lb";
                 break;
-            case 45: langFrom = "mg";
+            case 43: langFrom = "mg";
                 break;
-            case 46: langFrom = "ms";
+            case 44: langFrom = "ms";
                 break;
-            case 47: langFrom = "ml";
+            case 45: langFrom = "ml";
                 break;
-            case 50: langFrom = "mt";
+            case 46: langFrom = "mt";
                 break;
-            case 51: langFrom = "mk";
+            case 47: langFrom = "mk";
                 break;
-            case 52: langFrom = "mi";
+            case 48: langFrom = "mi";
                 break;
-            case 53: langFrom = "mr";
+            case 49: langFrom = "mr";
                 break;
-            case 54: langFrom = "mhr";
+            case 50: langFrom = "mhr";
                 break;
-            case 55: langFrom = "mn";
+            case 51: langFrom = "mn";
                 break;
-            case 56: langFrom = "de";
+            case 52: langFrom = "de";
                 break;
-            case 57: langFrom = "ne";
+            case 53: langFrom = "ne";
                 break;
-            case 58: langFrom = "no";
+            case 54: langFrom = "no";
                 break;
-            case 59: langFrom = "pa";
+            case 55: langFrom = "pa";
                 break;
-            case 60: langFrom = "pap";
+            case 56: langFrom = "pap";
                 break;
-            case 61: langFrom = "fa";
+            case 57: langFrom = "fa";
                 break;
-            case 62: langFrom = "pl";
+            case 58: langFrom = "pl";
                 break;
-            case 63: langFrom = "pt";
+            case 59: langFrom = "pt";
                 break;
-            case 64: langFrom = "ro";
+            case 60: langFrom = "ro";
                 break;
-            case 65: langFrom = "ceb";
+            case 61: langFrom = "ceb";
                 break;
-            case 66: langFrom = "sr";
+            case 62: langFrom = "sr";
                 break;
-            case 67: langFrom = "si";
+            case 63: langFrom = "si";
                 break;
-            case 68: langFrom = "sk";
+            case 64: langFrom = "sk";
                 break;
-            case 69: langFrom = "sl";
+            case 65: langFrom = "sl";
                 break;
-            case 70: langFrom = "sw";
+            case 66: langFrom = "sw";
                 break;
-            case 71: langFrom = "su";
+            case 67: langFrom = "su";
                 break;
-            case 72: langFrom = "tg";
+            case 68: langFrom = "tg";
                 break;
-            case 73: langFrom = "th";
+            case 69: langFrom = "th";
                 break;
-            case 74: langFrom = "tl";
+            case 70: langFrom = "tl";
                 break;
-            case 75: langFrom = "ta";
+            case 71: langFrom = "ta";
                 break;
-            case 76: langFrom = "tt";
+            case 72: langFrom = "tt";
                 break;
-            case 77: langFrom = "te";
+            case 73: langFrom = "te";
                 break;
-            case 78: langFrom = "tr";
+            case 74: langFrom = "tr";
                 break;
-            case 79: langFrom = "udm";
+            case 75: langFrom = "udm";
                 break;
-            case 80: langFrom = "uz";
+            case 76: langFrom = "uz";
                 break;
-            case 81: langFrom = "uk";
+            case 77: langFrom = "uk";
                 break;
-            case 82: langFrom = "ur";
+            case 78: langFrom = "ur";
                 break;
-            case 83: langFrom = "fi";
+            case 79: langFrom = "fi";
                 break;
-            case 84: langFrom = "fr";
+            case 80: langFrom = "fr";
                 break;
-            case 85: langFrom = "hi";
+            case 81: langFrom = "hi";
                 break;
-            case 86: langFrom = "hr";
+            case 82: langFrom = "hr";
                 break;
-            case 87: langFrom = "cs";
+            case 83: langFrom = "cs";
                 break;
-            case 88: langFrom = "sv";
+            case 84: langFrom = "sv";
                 break;
-            case 89: langFrom = "gd";
+            case 85: langFrom = "gd";
                 break;
-            case 90: langFrom = "et";
+            case 86: langFrom = "et";
                 break;
-            case 91: langFrom = "eo";
+            case 87: langFrom = "eo";
                 break;
-            case 92: langFrom = "jv";
+            case 88: langFrom = "jv";
                 break;
-            case 93: langFrom = "ja";
+            case 89: langFrom = "ja";
                 break;
             default: langFrom = "";
                 break;
@@ -554,129 +549,129 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case 27: langTo = "id";
                 break;
-            case 30: langTo = "ga";
+            case 28: langTo = "ga";
                 break;
-            case 31: langTo = "it";
+            case 29: langTo = "it";
                 break;
-            case 32: langTo = "is";
+            case 30: langTo = "is";
                 break;
-            case 33: langTo = "es";
+            case 31: langTo = "es";
                 break;
-            case 34: langTo = "kk";
+            case 32: langTo = "kk";
                 break;
-            case 35: langTo = "kn";
+            case 33: langTo = "kn";
                 break;
-            case 36: langTo = "ca";
+            case 34: langTo = "ca";
                 break;
-            case 37: langTo = "ky";
+            case 35: langTo = "ky";
                 break;
-            case 38: langTo = "zh";
+            case 36: langTo = "zh";
                 break;
-            case 39: langTo = "ko";
+            case 37: langTo = "ko";
                 break;
-            case 40: langTo = "xh";
+            case 38: langTo = "xh";
                 break;
-            case 41: langTo = "la";
+            case 39: langTo = "la";
                 break;
-            case 42: langTo = "lv";
+            case 40: langTo = "lv";
                 break;
-            case 43: langTo = "lt";
+            case 41: langTo = "lt";
                 break;
-            case 44: langTo = "lb";
+            case 42: langTo = "lb";
                 break;
-            case 45: langTo = "mg";
+            case 43: langTo = "mg";
                 break;
-            case 46: langTo = "ms";
+            case 44: langTo = "ms";
                 break;
-            case 47: langTo = "ml";
+            case 45: langTo = "ml";
                 break;
-            case 50: langTo = "mt";
+            case 46: langTo = "mt";
                 break;
-            case 51: langTo = "mk";
+            case 47: langTo = "mk";
                 break;
-            case 52: langTo = "mi";
+            case 48: langTo = "mi";
                 break;
-            case 53: langTo = "mr";
+            case 49: langTo = "mr";
                 break;
-            case 54: langTo = "mhr";
+            case 50: langTo = "mhr";
                 break;
-            case 55: langTo = "mn";
+            case 51: langTo = "mn";
                 break;
-            case 56: langTo = "de";
+            case 52: langTo = "de";
                 break;
-            case 57: langTo = "ne";
+            case 53: langTo = "ne";
                 break;
-            case 58: langTo = "no";
+            case 54: langTo = "no";
                 break;
-            case 59: langTo = "pa";
+            case 55: langTo = "pa";
                 break;
-            case 60: langTo = "pap";
+            case 56: langTo = "pap";
                 break;
-            case 61: langTo = "fa";
+            case 57: langTo = "fa";
                 break;
-            case 62: langTo = "pl";
+            case 58: langTo = "pl";
                 break;
-            case 63: langTo = "pt";
+            case 59: langTo = "pt";
                 break;
-            case 64: langTo = "ro";
+            case 60: langTo = "ro";
                 break;
-            case 65: langTo = "ceb";
+            case 61: langTo = "ceb";
                 break;
-            case 66: langTo = "sr";
+            case 62: langTo = "sr";
                 break;
-            case 67: langTo = "si";
+            case 63: langTo = "si";
                 break;
-            case 68: langTo = "sk";
+            case 64: langTo = "sk";
                 break;
-            case 69: langTo = "sl";
+            case 65: langTo = "sl";
                 break;
-            case 70: langTo = "sw";
+            case 66: langTo = "sw";
                 break;
-            case 71: langTo = "su";
+            case 67: langTo = "su";
                 break;
-            case 72: langTo = "tg";
+            case 68: langTo = "tg";
                 break;
-            case 73: langTo = "th";
+            case 69: langTo = "th";
                 break;
-            case 74: langTo = "tl";
+            case 70: langTo = "tl";
                 break;
-            case 75: langTo = "ta";
+            case 71: langTo = "ta";
                 break;
-            case 76: langTo = "tt";
+            case 72: langTo = "tt";
                 break;
-            case 77: langTo = "te";
+            case 73: langTo = "te";
                 break;
-            case 78: langTo = "tr";
+            case 74: langTo = "tr";
                 break;
-            case 79: langTo = "udm";
+            case 75: langTo = "udm";
                 break;
-            case 80: langTo = "uz";
+            case 76: langTo = "uz";
                 break;
-            case 81: langTo = "uk";
+            case 77: langTo = "uk";
                 break;
-            case 82: langTo = "ur";
+            case 78: langTo = "ur";
                 break;
-            case 83: langTo = "fi";
+            case 79: langTo = "fi";
                 break;
-            case 84: langTo = "fr";
+            case 80: langTo = "fr";
                 break;
-            case 85: langTo = "hi";
+            case 81: langTo = "hi";
                 break;
-            case 86: langTo = "hr";
+            case 82: langTo = "hr";
                 break;
-            case 87: langTo = "cs";
+            case 83: langTo = "cs";
                 break;
-            case 88: langTo = "sv";
+            case 84: langTo = "sv";
                 break;
-            case 89: langTo = "gd";
+            case 85: langTo = "gd";
                 break;
-            case 90: langTo = "et";
+            case 86: langTo = "et";
                 break;
-            case 91: langTo = "eo";
+            case 87: langTo = "eo";
                 break;
-            case 92: langTo = "jv";
+            case 88: langTo = "jv";
                 break;
-            case 93: langTo = "ja";
+            case 89: langTo = "ja";
                 break;
             default: langTo = "";
                 break;
