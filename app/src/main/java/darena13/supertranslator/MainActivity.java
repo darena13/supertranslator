@@ -69,12 +69,6 @@ public class MainActivity extends AppCompatActivity {
         datasource = new HistoryDataSource(this);
         //создаем/открываем БД
         datasource.open();
-        //получаем список всех объектов в БД
-        List<HistoryItem> values = datasource.getAllItems();
-        //и отдаем его адаптеру
-        ArrayAdapter<HistoryItem> adapterHistory = new ArrayAdapter<HistoryItem>(this,
-                android.R.layout.simple_list_item_1, values);
-        //setListAdapter(adapter);
 
         //creating a request queue
         mRequestQueue = Volley.newRequestQueue(this);
@@ -160,8 +154,8 @@ public class MainActivity extends AppCompatActivity {
                     TranslationFormFragment tab1 = new TranslationFormFragment();
                     return tab1;
                 case 1:
-                    PlaceholderFragment tab2 = new PlaceholderFragment();
-                    return tab2.newInstance(position);
+                    HistoryFragment tab2 = new HistoryFragment();
+                    return tab2;
                 case 2:
                     PlaceholderFragment tab3 = new PlaceholderFragment();
                     return tab3.newInstance(position);
@@ -201,11 +195,10 @@ public class MainActivity extends AppCompatActivity {
 
     //поиск словарной статьи
     public void translateDict() {
-        String textToTranslate;
         String dictionaryRequestUrl;
 
         EditText mEditText = (EditText)findViewById(R.id.textToTranslate);
-        textToTranslate = mEditText.getText().toString();
+        String textToTranslate = mEditText.getText().toString();
 
         String lang = getLanguageCode();
 
@@ -236,8 +229,8 @@ public class MainActivity extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.e("Error: ", error.getMessage());
                 Toast.makeText(MainActivity.this, "Dictionary ERROR", Toast.LENGTH_SHORT).show();
-                ListView list = (ListView) findViewById(R.id.dict_list);
-                list.setAdapter(null);
+//                ListView list = (ListView) findViewById(R.id.dict_list);
+//                list.setAdapter(null);
             }
         });
 
@@ -247,13 +240,12 @@ public class MainActivity extends AppCompatActivity {
 
     //перевод предложений
     public void translateTrns() {
-        String textToTranslate;
         String translateRequestUrl;
 
         EditText mEditText = (EditText)findViewById(R.id.textToTranslate);
-        textToTranslate = mEditText.getText().toString();
+        final String textToTranslate = mEditText.getText().toString();
 
-        String lang = getLanguageCode();
+        final String lang = getLanguageCode();
 
         Uri builtTrnsUri = Uri.parse(YANDEX_TRNS_API_URL)
                 .buildUpon()
@@ -272,6 +264,8 @@ public class MainActivity extends AppCompatActivity {
                             result = result.substring(2, result.length()-2);
                             TextView resultsTextView = (TextView)findViewById(R.id.results);
                             resultsTextView.setText(result);
+                            //добавляем перевод в БД
+                            datasource.createHistoryItem(System.currentTimeMillis(), textToTranslate, result, lang, 0);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }

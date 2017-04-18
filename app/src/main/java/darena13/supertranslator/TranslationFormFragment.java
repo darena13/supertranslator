@@ -44,15 +44,4 @@ public class TranslationFormFragment extends Fragment {
 
         return view;
     }
-
-    /** public static TranslationFormFragment newInstance(int sectionNumber) {
-        TranslationFormFragment fragment = new TranslationFormFragment();
-        Bundle args = new Bundle(); //A mapping from String keys to various Parcelable values.
-        args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-        fragment.setArguments(args);
-        return fragment;
-    } **/
-
-
-
 }

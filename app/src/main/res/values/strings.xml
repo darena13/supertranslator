@@ -10,6 +10,7 @@
     <string name="enter">Enter your text</string>
     <string name="english">English</string>
     <string name="russian">Russian</string>
+    <string name="search">Search in history</string>
     <string-array name="language_array">
         <item>английский</item>
         <item>русский</item>
