@@ -40,6 +40,7 @@ public class TranslationFormFragment extends Fragment {
                 R.array.language_array, android.R.layout.simple_spinner_item);
         adapterLangTo.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerLangTo.setAdapter(adapterLangTo);
+        spinnerLangTo.setSelection(1);
 
         return view;
     }
