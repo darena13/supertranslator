@@ -53,6 +53,9 @@ public class HistoryDataSource {
         values.put(HistoryOpenHelper.COLUMN_TRNS, trns);
         values.put(HistoryOpenHelper.COLUMN_LANG, lang);
         values.put(HistoryOpenHelper.COLUMN_FAV, fav);
+        //удаляем старые записи воизбежание дублирования - ОШИБКА
+        database.delete(HistoryOpenHelper.HISTORY_TABLE_NAME, HistoryOpenHelper.COLUMN_TEXT
+                + " = '" + text + "'", null);
         //добавляем весь сет в базу и получаем id строки
         long insertId = database.insert(HistoryOpenHelper.HISTORY_TABLE_NAME, null,
                 values);
@@ -83,7 +86,7 @@ public class HistoryDataSource {
         List<HistoryItem> historyItems = new ArrayList<HistoryItem>();
 
         Cursor cursor = database.query(HistoryOpenHelper.HISTORY_TABLE_NAME,
-                allColumns, null, null, null, null, null);
+                allColumns, null, null, null, null, HistoryOpenHelper.COLUMN_DATE + " DESC");
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
@@ -97,11 +100,12 @@ public class HistoryDataSource {
     }
 
     //получить список всех записей в таблице, добавленных в избранное
-    public List<HistoryItem> getAllFavorites() {
-        List<HistoryItem> historyItems = new ArrayList<HistoryItem>();
+    public ArrayList<HistoryItem> getAllFavorites() {
+        ArrayList<HistoryItem> historyItems = new ArrayList<HistoryItem>();
 
         Cursor cursor = database.query(HistoryOpenHelper.HISTORY_TABLE_NAME,
-                allColumns, HistoryOpenHelper.COLUMN_FAV + " = " + FAV_TRUE, null, null, null, null);
+                allColumns, HistoryOpenHelper.COLUMN_FAV + " = " + FAV_TRUE , null, null, null, HistoryOpenHelper.COLUMN_DATE + " DESC");
+
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {

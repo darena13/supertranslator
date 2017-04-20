@@ -266,6 +266,8 @@ public class MainActivity extends AppCompatActivity {
                             resultsTextView.setText(result);
                             //добавляем перевод в БД
                             datasource.createHistoryItem(System.currentTimeMillis(), textToTranslate, result, lang, 0);
+                            ListView list = (ListView) findViewById(R.id.history_list);
+                            ((HistoryAdapter) list.getAdapter()).notifyDataSetChanged();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -298,6 +300,9 @@ public class MainActivity extends AppCompatActivity {
         Spinner spinnerLangTo = (Spinner) findViewById(R.id.language_to_spinner);
         int langFromId = (int) spinnerLangFrom.getSelectedItemId();
         int langToId = (int) spinnerLangTo.getSelectedItemId();
+
+//        String[] languages = new String[] {"en", "ru", "az", "sq", "am"}
+        //делать запросом
 
         String langFrom;
         String langTo;

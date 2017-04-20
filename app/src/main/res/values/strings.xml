@@ -11,6 +11,7 @@
     <string name="english">English</string>
     <string name="russian">Russian</string>
     <string name="search">Search in history</string>
+    <string name="lang.ru">русский</string>
     <string-array name="language_array">
         <item>английский</item>
         <item>русский</item>
