@@ -27,7 +27,7 @@ public class HistoryFragment extends Fragment implements LoaderManager.LoaderCal
     //private static final String ARG_SECTION_NUMBER = "section_number";
     private HistoryDataSource datasource;
     ListView historyList;
-    HistoryAdapter adapter;
+    CustomAdapter adapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -83,15 +83,16 @@ public class HistoryFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle arg1) {
-        Uri CONTACT_URI = RequestProvider.urlForItems(0);
-        CursorLoader cursorLoader = new CursorLoader(getContext(), CONTACT_URI, null, null, null, null);
+        Uri HISTORY_URI = RequestProvider.urlForItems(0);
+        CursorLoader cursorLoader = new CursorLoader(getContext(), HISTORY_URI, null, null, null, null);
         return cursorLoader;
     }
 
     @Override
     public void onLoadFinished(Loader arg0, Cursor cursor) {
         cursor.moveToFirst();
-        adapter = new HistoryAdapter(this, cursor);
+        //adapter = new HistoryAdapter(this, cursor);
+        adapter = new CustomAdapter(getContext(), cursor);
         historyList.setAdapter(adapter);
     }
 

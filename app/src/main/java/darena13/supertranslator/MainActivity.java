@@ -266,8 +266,8 @@ public class MainActivity extends AppCompatActivity {
                             resultsTextView.setText(result);
                             //добавляем перевод в БД
                             datasource.createHistoryItem(System.currentTimeMillis(), textToTranslate, result, lang, 0);
-                            ListView list = (ListView) findViewById(R.id.history_list);
-                            ((HistoryAdapter) list.getAdapter()).notifyDataSetChanged();
+//                            ListView list = (ListView) findViewById(R.id.history_list);
+//                            ((HistoryAdapter) list.getAdapter()).notifyDataSetChanged();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
