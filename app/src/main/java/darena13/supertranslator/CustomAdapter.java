@@ -17,8 +17,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import static darena13.supertranslator.HistoryOpenHelper.COLUMN_TEXT;
-import static darena13.supertranslator.HistoryOpenHelper.COLUMN_TRNS;
 
 /**
  * Created by darena13 on 21.04.2017.

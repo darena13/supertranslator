@@ -35,22 +35,19 @@ public class HistoryFragment extends Fragment implements LoaderManager.LoaderCal
 
         getLoaderManager().initLoader(0, null, this);
 
-
             //lstContact = (ListView) findViewById(R.id.lstContacts);
             //getSupportLoaderManager().initLoader(1, null, this);
-
-
 
 
         //создаем ДАО
         datasource = new HistoryDataSource(getContext());
         //создаем/открываем БД
         datasource.open();
-        //получаем список всех объектов в БД
-        ArrayList<HistoryItem> values = (ArrayList<HistoryItem>) datasource.getAllItems();
-        //и отдаем его адаптеру
-        final HistoryAdapter adapterHistory = new HistoryAdapter(getContext(),
-                R.layout.history_list_item, values);
+//        //получаем список всех объектов в БД
+//        ArrayList<HistoryItem> values = (ArrayList<HistoryItem>) datasource.getAllItems();
+//        //и отдаем его адаптеру
+//        final HistoryAdapter adapterHistory = new HistoryAdapter(getContext(),
+//                R.layout.history_list_item, values);
 
 //        adapterHistory.registerDataSetObserver(new DataSetObserver() {
 //            @Override
@@ -60,7 +57,7 @@ public class HistoryFragment extends Fragment implements LoaderManager.LoaderCal
 //        });
 
         historyList = (ListView) view.findViewById(R.id.history_list);
-        historyList.setAdapter(adapterHistory);
+//        historyList.setAdapter(adapterHistory);
 
         return view;
     }
