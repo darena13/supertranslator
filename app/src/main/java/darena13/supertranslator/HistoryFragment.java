@@ -26,12 +26,21 @@ import android.support.v4.widget.CursorAdapter;
 public class HistoryFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     //private static final String ARG_SECTION_NUMBER = "section_number";
     private HistoryDataSource datasource;
+    ListView historyList;
+    HistoryAdapter adapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.history_fragment, container, false);
 
         getLoaderManager().initLoader(0, null, this);
+
+
+            //lstContact = (ListView) findViewById(R.id.lstContacts);
+            //getSupportLoaderManager().initLoader(1, null, this);
+
+
+
 
         //создаем ДАО
         datasource = new HistoryDataSource(getContext());
@@ -50,7 +59,7 @@ public class HistoryFragment extends Fragment implements LoaderManager.LoaderCal
 //            }
 //        });
 
-        ListView historyList = (ListView) view.findViewById(R.id.history_list);
+        historyList = (ListView) view.findViewById(R.id.history_list);
         historyList.setAdapter(adapterHistory);
 
         return view;
@@ -73,19 +82,21 @@ public class HistoryFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+    public Loader<Cursor> onCreateLoader(int id, Bundle arg1) {
         Uri CONTACT_URI = RequestProvider.urlForItems(0);
         CursorLoader cursorLoader = new CursorLoader(getContext(), CONTACT_URI, null, null, null, null);
         return cursorLoader;
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-
+    public void onLoadFinished(Loader arg0, Cursor cursor) {
+        cursor.moveToFirst();
+        adapter = new HistoryAdapter(this, cursor);
+        historyList.setAdapter(adapter);
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        // do nothing
+    public void onLoaderReset(Loader arg0) {
+
     }
 }
