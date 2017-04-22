@@ -50,8 +50,7 @@ public class CustomAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View view = convertView;
+    public View getView(int position, View view, ViewGroup parent) {
         Holder holder;
         cursor.moveToPosition(position);
         if (view == null) {
@@ -73,18 +72,6 @@ public class CustomAdapter extends BaseAdapter {
         holder.text_2.setText(cursor.getString(3));
         holder.text_lang.setText(cursor.getString(4));
         holder.image_fav.setImageResource(android.R.drawable.btn_star_big_on);
-
-//        String imageUri = cursor.getString(cursor
-//                .getColumnIndex(Phone.PHOTO_URI));
-//        try {
-//            Bitmap bitmap = MediaStore.Images.Media.getBitmap(
-//                    mContext.getContentResolver(), Uri.parse(imageUri));
-//            holder.image_fav.setImageBitmap(bitmap);
-////            scaleImage(holder.image_fav);
-//        } catch (Exception e) {
-//            holder.image_fav.setImageResource(android.R.drawable.btn_star_big_on);
-////            scaleImage(holder.image_fav);
-//        }
         return view;
     }
 

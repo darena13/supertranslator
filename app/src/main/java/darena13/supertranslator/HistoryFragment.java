@@ -24,6 +24,8 @@ import android.support.v4.widget.CursorAdapter;
  */
 
 public class HistoryFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+    private static final Uri HISTORY_URI = RequestProvider.urlForItems(0);
+
     //private static final String ARG_SECTION_NUMBER = "section_number";
     private HistoryDataSource datasource;
     ListView historyList;
@@ -79,22 +81,25 @@ public class HistoryFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     @Override
+    public void onDestroy() {
+        datasource.close();
+        super.onDestroy();
+    }
+
+    @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle arg1) {
-        Uri HISTORY_URI = RequestProvider.urlForItems(0);
-        CursorLoader cursorLoader = new CursorLoader(getContext(), HISTORY_URI, null, null, null, null);
-        return cursorLoader;
+        return new CursorLoader(getContext(), HISTORY_URI, null, null, null, HistoryOpenHelper.COLUMN_DATE + " DESC");
     }
 
     @Override
     public void onLoadFinished(Loader arg0, Cursor cursor) {
         cursor.moveToFirst();
-        //adapter = new HistoryAdapter(this, cursor);
         adapter = new CustomAdapter(getContext(), cursor);
         historyList.setAdapter(adapter);
     }
 
     @Override
     public void onLoaderReset(Loader arg0) {
-
+        System.out.println("1");
     }
 }

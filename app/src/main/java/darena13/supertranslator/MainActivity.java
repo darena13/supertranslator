@@ -50,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
     public static final String TRNS_KEY = "trnsl.1.1.20170323T152914Z.07d329d9a6f367e9.7fc2032da9c680dd945a3f8ba5e65c2cacd82d4b";
     public static final String DICT_KEY = "dict.1.1.20170406T140716Z.aaf26a32ef51e3a4.7e8e7f021bbb2d111099eea26429f7b809d16406";
 
+    private HistoryFragment historyFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,6 +74,8 @@ public class MainActivity extends AppCompatActivity {
 
         //creating a request queue
         mRequestQueue = Volley.newRequestQueue(this);
+
+        historyFragment = new HistoryFragment();
     }
 
 
@@ -154,8 +158,7 @@ public class MainActivity extends AppCompatActivity {
                     TranslationFormFragment tab1 = new TranslationFormFragment();
                     return tab1;
                 case 1:
-                    HistoryFragment tab2 = new HistoryFragment();
-                    return tab2;
+                    return historyFragment;
                 case 2:
                     PlaceholderFragment tab3 = new PlaceholderFragment();
                     return tab3.newInstance(position);
@@ -266,6 +269,7 @@ public class MainActivity extends AppCompatActivity {
                             resultsTextView.setText(result);
                             //добавляем перевод в БД
                             datasource.createHistoryItem(System.currentTimeMillis(), textToTranslate, result, lang, 0);
+                            historyFragment.getLoaderManager().getLoader(0).onContentChanged();
 //                            ListView list = (ListView) findViewById(R.id.history_list);
 //                            ((HistoryAdapter) list.getAdapter()).notifyDataSetChanged();
                         } catch (JSONException e) {
@@ -277,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.e("Error: ", error.getMessage());
                 Toast.makeText(MainActivity.this, "HTTP ERROR", Toast.LENGTH_SHORT).show();
-            }
+                                                                                                                                        }
         });
 
         //Add requests to RequestQueue to execute
