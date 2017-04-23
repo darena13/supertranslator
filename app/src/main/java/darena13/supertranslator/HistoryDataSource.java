@@ -80,7 +80,7 @@ public class HistoryDataSource {
     //получить список всех записей в таблице
     public List<Translation> getAllItems() {
         List<Translation> translations = new ArrayList<Translation>();
-        //запрос в БД, к результата мкоторого прилагается курсор
+        //запрос в БД, к результатам которого прилагается курсор
         Cursor cursor = database.query(HistoryOpenHelper.HISTORY_TABLE_NAME,
                 ALL_COLUMNS, null, null, null, null, HistoryOpenHelper.COLUMN_DATE + " DESC");
         //перемещаем курсор на первую запись ответа на запрос к БД
