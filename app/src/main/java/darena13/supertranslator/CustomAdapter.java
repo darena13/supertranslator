@@ -1,20 +1,15 @@
 package darena13.supertranslator;
 
-import android.widget.BaseAdapter;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.Matrix;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.provider.ContactsContract.CommonDataKinds.Phone;
-import android.provider.MediaStore;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
@@ -23,14 +18,23 @@ import android.widget.TextView;
  */
 
 public class CustomAdapter extends BaseAdapter {
-    Cursor cursor;
-    Context mContext;
-    LayoutInflater inflater;
+    private Cursor cursor;
+    private Context context;
+    private LayoutInflater inflater;
+    private HistoryDataSource dataSource;
+    private OnChangeHistoryListener onChangeHistoryListener;
 
-    public CustomAdapter(Context context, Cursor cursor) {
-        mContext = context;
+    private View selectedItem = null;
+
+    public CustomAdapter(Context context,
+                         HistoryDataSource dataSource,
+                         Cursor cursor,
+                         OnChangeHistoryListener onChangeHistoryListener) {
+        this.context = context;
+        this.dataSource = dataSource;
         this.cursor = cursor;
-        inflater = (LayoutInflater) mContext
+        this.onChangeHistoryListener = onChangeHistoryListener;
+        inflater = (LayoutInflater) this.context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
@@ -53,6 +57,7 @@ public class CustomAdapter extends BaseAdapter {
     public View getView(int position, View view, ViewGroup parent) {
         Holder holder;
         cursor.moveToPosition(position);
+        final Translation item = HistoryDataSource.cursorToTranslation(cursor);
         if (view == null) {
             view = inflater.inflate(R.layout.history_list_item, parent,
                     false);
@@ -68,11 +73,51 @@ public class CustomAdapter extends BaseAdapter {
         } else {
             holder = (Holder) view.getTag();
         }
-        holder.text_1.setText(cursor.getString(2));
-        holder.text_2.setText(cursor.getString(3));
-        holder.text_lang.setText(cursor.getString(4));
-        holder.image_fav.setImageResource(android.R.drawable.btn_star_big_on);
+        holder.text_1.setText(item.getText());
+        holder.text_2.setText(item.getTranslation());
+        holder.text_lang.setText(item.getLanguage());
+        if (item.getFavorite() == 0) {
+            holder.image_fav.setImageResource(android.R.drawable.btn_star_big_off);
+        } else {
+            holder.image_fav.setImageResource(android.R.drawable.btn_star_big_on);
+        }
+        holder.image_fav.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dataSource.toggleFavorites(item);
+                onChangeHistoryListener.onChange();
+            }
+        });
+        final View finalView = view;
+        view.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                showDeleteDialog(item, v);
+                finalView.setSelected(true);
+                return true;
+            }
+        });
+
         return view;
+    }
+
+    private void showDeleteDialog(final Translation item, final View v) {
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case DialogInterface.BUTTON_POSITIVE:
+                        dataSource.deleteHistoryItem(item);
+                        onChangeHistoryListener.onChange();
+                        break;
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        v.setSelected(false);
+                }
+            }
+        };
+        AlertDialog.Builder ab = new AlertDialog.Builder(context);
+        ab.setMessage("Are you sure to delete \"" + item.getText() + "\"?").setPositiveButton("Yes", dialogClickListener)
+                .setNegativeButton("No", dialogClickListener).show();
     }
 
     class Holder {
@@ -80,41 +125,5 @@ public class CustomAdapter extends BaseAdapter {
         ImageView image_fav;
     }
 
-//    private void scaleImage(ImageView imageView) {
-//
-//        Drawable drawing = imageView.getDrawable();
-//        if (drawing == null) {
-//        }
-//        Bitmap bitmap = ((BitmapDrawable) drawing).getBitmap();
-//
-//        int width = bitmap.getWidth();
-//        int height = bitmap.getHeight();
-//        int bounding = dpToPx(50);
-//
-//        float xScale = ((float) bounding) / width;
-//        float yScale = ((float) bounding) / height;
-//        float scale = (xScale <= yScale) ? xScale : yScale;
-//        Matrix matrix = new Matrix();
-//        matrix.postScale(scale, scale);
-//
-//        Bitmap scaledBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height,
-//                matrix, true);
-//        width = scaledBitmap.getWidth(); // re-use
-//        height = scaledBitmap.getHeight(); // re-use
-//        BitmapDrawable result = new BitmapDrawable(scaledBitmap);
-//
-//        imageView.setImageDrawable(result);
-//
-//        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) imageView
-//                .getLayoutParams();
-//        params.width = width;
-//        params.height = height;
-//        imageView.setLayoutParams(params);
-//
-//    }
 
-//    private int dpToPx(int dp) {
-//        float density = mContext.getResources().getDisplayMetrics().density;
-//        return Math.round((float) dp * density);
-//    }
 }

@@ -4,7 +4,7 @@ package darena13.supertranslator;
  * Created by darena13 on 13.04.2017.
  */
 
-public class HistoryItem {
+public class Translation {
     private long id;
     private long date;
     private String text;

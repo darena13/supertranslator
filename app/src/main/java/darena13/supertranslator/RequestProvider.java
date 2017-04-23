@@ -1,16 +1,13 @@
 package darena13.supertranslator;
 
 import android.content.ContentProvider;
-import android.content.UriMatcher;
-import android.database.sqlite.SQLiteOpenHelper;
-
 import android.content.ContentUris;
 import android.content.ContentValues;
-
+import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-
+import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -28,12 +25,11 @@ public class RequestProvider extends ContentProvider {
 
     public static final String AUTHORITY = BuildConfig.APPLICATION_ID + ".db";
 
-    private static final int
-            TABLE_ITEMS = 0;
+    private static final int TABLE_ITEMS = 0;
 
     static {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        sUriMatcher.addURI(AUTHORITY, HistoryOpenHelper.HISTORY_TABLE_NAME + "/offset/" + "#", TABLE_ITEMS);
+        sUriMatcher.addURI(AUTHORITY, HistoryOpenHelper.HISTORY_TABLE_NAME + "/offset/#", TABLE_ITEMS);
     }
 
     public static Uri urlForItems(int limit) {

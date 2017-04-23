@@ -10,7 +10,7 @@ import android.util.Log;
  */
 
 public class HistoryOpenHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
     public static final String DATABASE_NAME = "super_translator.db";
     public static final String HISTORY_TABLE_NAME = "history";
     public static final String COLUMN_ID = "_id";
@@ -28,7 +28,8 @@ public class HistoryOpenHelper extends SQLiteOpenHelper {
                     COLUMN_TEXT + " text not null, " +
                     COLUMN_TRNS + " text not null, " +
                     COLUMN_LANG + " text not null, " +
-                    COLUMN_FAV + " integer not null);";
+                    COLUMN_FAV + " integer not null," +
+                    "UNIQUE (" + COLUMN_TEXT + ", " + COLUMN_LANG + "));"; //поля Текст и Направление перевода уникальные
 
     //индексы для полей "date" и "text"
     private static final String DATE_INDEX_CREATE =

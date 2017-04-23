@@ -1,105 +1,133 @@
 package darena13.supertranslator;
 
-
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ListView;
-import java.util.ArrayList;
-
-import android.support.v4.widget.SimpleCursorAdapter;
-import android.database.Cursor;
-import android.database.DataSetObserver;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ListView;
+import android.widget.SearchView;
 
 /**
  * Created by darena13 on 18.04.2017.
  */
 
-public class HistoryFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class HistoryFragment extends Fragment implements SearchView.OnQueryTextListener, LoaderManager.LoaderCallbacks<Cursor> {
+    //URI к БД в качестве провайдера данных для лоадера
     private static final Uri HISTORY_URI = RequestProvider.urlForItems(0);
+    //запрос в БД на поиск строчек с совпадением по полям text и trns (перевод)
+    private static final String SELECTION =
+            HistoryOpenHelper.COLUMN_TEXT + " LIKE ? OR "
+                    + HistoryOpenHelper.COLUMN_TRNS + " LIKE ?";
+    //такой же запрос, но для записей, добавленных в избранное
+    private static final String FAVORITES_ONLY_SELECTION =
+            "(" + SELECTION + ") AND " + HistoryOpenHelper.COLUMN_FAV + " = 1";
 
-    //private static final String ARG_SECTION_NUMBER = "section_number";
-    private HistoryDataSource datasource;
-    ListView historyList;
-    CustomAdapter adapter;
+    private HistoryDataSource dataSource; //ДАО
+    private ListView historyList;
+    private CustomAdapter adapter;
+    private SearchView searchView;
+    private String filter = ""; //фильтр для сортировки списка по тексту в SearchView
+    private boolean showFavoritesOnly; //История или Избранное
+    private OnChangeHistoryListener onChangeHistoryListener; //
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.history_fragment, container, false);
 
+        //Лоадер для загрузки данных из БД в ListView
         getLoaderManager().initLoader(0, null, this);
 
-            //lstContact = (ListView) findViewById(R.id.lstContacts);
-            //getSupportLoaderManager().initLoader(1, null, this);
-
-
         //создаем ДАО
-        datasource = new HistoryDataSource(getContext());
+        dataSource = new HistoryDataSource(getContext());
         //создаем/открываем БД
-        datasource.open();
-//        //получаем список всех объектов в БД
-//        ArrayList<HistoryItem> values = (ArrayList<HistoryItem>) datasource.getAllItems();
-//        //и отдаем его адаптеру
-//        final HistoryAdapter adapterHistory = new HistoryAdapter(getContext(),
-//                R.layout.history_list_item, values);
-
-//        adapterHistory.registerDataSetObserver(new DataSetObserver() {
-//            @Override
-//            public void onChanged() {
-//                adapterHistory.setObjects((ArrayList<HistoryItem>) datasource.getAllItems());
-//            }
-//        });
-
+        dataSource.open();
         historyList = (ListView) view.findViewById(R.id.history_list);
-//        historyList.setAdapter(adapterHistory);
+        searchView = (SearchView) view.findViewById(R.id.history_search);
+
+        //задаем листенер для поля Поиск
+        searchView.setOnQueryTextListener(this);
 
         return view;
     }
 
-    void onActivityCreated() {
+    //История или Избранное
+    public void setShowFavoritesOnly(boolean showFavoritesOnly) {
+        this.showFavoritesOnly = showFavoritesOnly;
+    }
 
+    //задать листенер
+    public void setOnChangeHistoryListener(OnChangeHistoryListener listener) {
+        this.onChangeHistoryListener = listener;
+    }
+
+    //если данные изменились, список нужно обновить
+    public void updateList() {
+        getLoaderManager().getLoader(0).onContentChanged();
     }
 
     @Override
     public void onResume() {
-        datasource.open();
+        dataSource.open();
         super.onResume();
     }
 
     @Override
     public void onPause() {
-        datasource.close();
+        dataSource.close();
         super.onPause();
     }
 
     @Override
     public void onDestroy() {
-        datasource.close();
+        dataSource.close();
         super.onDestroy();
     }
 
+    //при создании лоадера
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle arg1) {
-        return new CursorLoader(getContext(), HISTORY_URI, null, null, null, HistoryOpenHelper.COLUMN_DATE + " DESC");
+        //в качестве аргумента для LIKE в запросе текст от пользователя +% (любые символы)
+        String likeArg = filter + "%";
+        //История или Избранное
+        String selection = showFavoritesOnly ? FAVORITES_ONLY_SELECTION : SELECTION;
+        //создаем новый КурсорЛоадер с фильтром и сортировкой по дате
+        return new CursorLoader(getContext(), HISTORY_URI, null, selection,
+                new String[]{likeArg, likeArg}, HistoryOpenHelper.COLUMN_DATE + " DESC");
     }
 
+    //лоадер закончил загрузку данных
     @Override
     public void onLoadFinished(Loader arg0, Cursor cursor) {
+        //перемещаем курсор на первую строчку результатов запроса
         cursor.moveToFirst();
-        adapter = new CustomAdapter(getContext(), cursor);
+        //создаем адаптер
+        adapter = new CustomAdapter(getContext(), dataSource, cursor, onChangeHistoryListener);
         historyList.setAdapter(adapter);
     }
 
     @Override
     public void onLoaderReset(Loader arg0) {
-        System.out.println("1");
+        //ничего не делаем
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return true;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        //передаем в фильтр текст, который пользователь набирает в поле SearchView
+        filter = newText;
+        //перезапускаем лоадер, чтобы сделать новый запрос - с новым фильтром
+        getLoaderManager().restartLoader(0, null, this);
+        return true;
     }
 }

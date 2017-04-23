@@ -2,13 +2,11 @@ package darena13.supertranslator;
 
 import android.content.Context;
 import android.util.Log;
-import android.util.StringBuilderPrinter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -69,31 +67,16 @@ public class DictAdapter extends BaseAdapter {
             list.removeAllViews();
             //массив с вариантами перевода - поле tr
             JSONArray trArray = p.getJSONArray("tr");
-                for (int pos = 0; pos < trArray.length(); pos++) {
-                    //для каждого JSONObject из массива
-                    JSONObject tr = trArray.getJSONObject(pos);
-                    //создаем View c dict_row_layout
-                    View row = lInflater.inflate(R.layout.dict_row_layout, parent, false);
-                    //и помещаем поле text в нужный TextView макета
-                    ((TextView) row.findViewById(R.id.dict_row_text)).setText(tr.getString("text"));
-                    //и добавляем нумерацию
-                    String num = Integer.toString(pos+1) + ". ";
-                    ((TextView) row.findViewById(R.id.dict_row_num)).setText(num);
-//
-//                  try {
-//                    JSONArray syns = tr.getJSONArray("syn");
-//                    StringBuilder synBuilder = new StringBuilder();
-//                    for (int synpos = 0; synpos < syns.length(); synpos++) {
-//                        if (synpos != 0) synBuilder.append(", ");
-//                        synBuilder.append(syns.getJSONObject(synpos).getString("text"));
-//                    }
-//
-//                    ((TextView) row.findViewById(R.id.dict_row_syn)).setText(synBuilder.toString());
-//                } catch (JSONException e) {
-//                    ((TextView) row.findViewById(R.id.dict_row_syn)).setText("");
-//                }
-
-
+            for (int pos = 0; pos < trArray.length(); pos++) {
+                //для каждого JSONObject из массива
+                JSONObject tr = trArray.getJSONObject(pos);
+                //создаем View c dict_row_layout
+                View row = lInflater.inflate(R.layout.dict_row_layout, parent, false);
+                //и помещаем поле text в нужный TextView макета
+                ((TextView) row.findViewById(R.id.dict_row_text)).setText(tr.getString("text"));
+                //и добавляем нумерацию
+                String num = Integer.toString(pos + 1) + ". ";
+                ((TextView) row.findViewById(R.id.dict_row_num)).setText(num);
                 //добавляем получившийся View к LinearLayout для вложенного списка
                 list.addView(row);
             }
@@ -108,7 +91,7 @@ public class DictAdapter extends BaseAdapter {
         return ((JSONObject) getItem(position));
     }
 
-    public void update (JSONArray arr) {
+    public void update(JSONArray arr) {
         rows = arr;
         notifyDataSetChanged();
     }

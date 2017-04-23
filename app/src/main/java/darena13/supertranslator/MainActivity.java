@@ -11,12 +11,10 @@ import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -35,37 +33,52 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.List;
-
 
 public class MainActivity extends AppCompatActivity {
-    private SectionsPagerAdapter mSectionsPagerAdapter;//Adapter that will return fragments
-    private ViewPager mViewPager;//ViewPager with the sections adapter
+    private SectionsPagerAdapter mSectionsPagerAdapter;
+    private ViewPager mViewPager;
 
     private HistoryDataSource datasource;
 
-    private RequestQueue mRequestQueue; //Volley's request queue
+    private RequestQueue mRequestQueue; //Volley's очередь на исполнение запросов
     public static final String YANDEX_TRNS_API_URL = "https://translate.yandex.net/api/v1.5/tr.json/translate?";
     public static final String YANDEX_DICT_API_URL = "https://dictionary.yandex.net/api/v1/dicservice.json/lookup?";
     public static final String TRNS_KEY = "trnsl.1.1.20170323T152914Z.07d329d9a6f367e9.7fc2032da9c680dd945a3f8ba5e65c2cacd82d4b";
     public static final String DICT_KEY = "dict.1.1.20170406T140716Z.aaf26a32ef51e3a4.7e8e7f021bbb2d111099eea26429f7b809d16406";
 
     private HistoryFragment historyFragment;
+    private HistoryFragment favoritesFragment;
+
+    //создаем листенер на изменения в данных для Истории и Избранного
+    private OnChangeHistoryListener onChangeHistoryListener = new OnChangeHistoryListener() {
+        @Override
+        public void onChange() {
+            historyFragment.updateList();
+            favoritesFragment.updateList();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
-
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
+        //закладки
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
+
+        //фрагменты для закладок История и Избранное
+        historyFragment = new HistoryFragment();
+        favoritesFragment = new HistoryFragment();
+        favoritesFragment.setShowFavoritesOnly(true);
+
+        //
+        historyFragment.setOnChangeHistoryListener(onChangeHistoryListener);
+        favoritesFragment.setOnChangeHistoryListener(onChangeHistoryListener);
 
         //создаем ДАО
         datasource = new HistoryDataSource(this);
@@ -74,94 +87,24 @@ public class MainActivity extends AppCompatActivity {
 
         //creating a request queue
         mRequestQueue = Volley.newRequestQueue(this);
-
-        historyFragment = new HistoryFragment();
     }
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        public PlaceholderFragment() { //All subclasses of Fragment must include a public no-argument constructor.
-        }
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle(); //A mapping from String keys to various Parcelable values.
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
-            return rootView;
-        }
-    }
-
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter { //Implementation of PagerAdapter that represents each page as a Fragment that is persistently kept in the fragment manager as long as the user can return to the page.
+    public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
+        //создаем фрагменты для каждой закладки
         @Override
         public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            //return PlaceholderFragment.newInstance(position);
-
             switch (position) {
                 case 0:
-                    TranslationFormFragment tab1 = new TranslationFormFragment();
-                    return tab1;
+                    return new TranslationFormFragment();
                 case 1:
                     return historyFragment;
                 case 2:
-                    PlaceholderFragment tab3 = new PlaceholderFragment();
-                    return tab3.newInstance(position);
+                    return favoritesFragment;
                 default:
                     return null;
             }
@@ -187,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //кнопка Translate
     public void translate(View view) {
         try {
             translateDict();
@@ -200,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
     public void translateDict() {
         String dictionaryRequestUrl;
 
-        EditText mEditText = (EditText)findViewById(R.id.textToTranslate);
+        EditText mEditText = (EditText) findViewById(R.id.textToTranslate);
         String textToTranslate = mEditText.getText().toString();
 
         String lang = getLanguageCode();
@@ -232,12 +176,11 @@ public class MainActivity extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.e("Error: ", error.getMessage());
                 Toast.makeText(MainActivity.this, "Dictionary ERROR", Toast.LENGTH_SHORT).show();
-//                ListView list = (ListView) findViewById(R.id.dict_list);
-//                list.setAdapter(null);
+
             }
         });
 
-        //Add requests to RequestQueue to execute
+        //добавляем запрос в очередь
         mRequestQueue.add(req);
     }
 
@@ -245,11 +188,12 @@ public class MainActivity extends AppCompatActivity {
     public void translateTrns() {
         String translateRequestUrl;
 
-        EditText mEditText = (EditText)findViewById(R.id.textToTranslate);
+        EditText mEditText = (EditText) findViewById(R.id.textToTranslate);
         final String textToTranslate = mEditText.getText().toString();
 
         final String lang = getLanguageCode();
 
+        //собираем URI для запроса
         Uri builtTrnsUri = Uri.parse(YANDEX_TRNS_API_URL)
                 .buildUpon()
                 .appendQueryParameter("key", TRNS_KEY)
@@ -264,14 +208,13 @@ public class MainActivity extends AppCompatActivity {
                     public void onResponse(JSONObject response) {
                         try {
                             String result = response.getString("text");
-                            result = result.substring(2, result.length()-2);
-                            TextView resultsTextView = (TextView)findViewById(R.id.results);
+                            result = result.substring(2, result.length() - 2);
+                            TextView resultsTextView = (TextView) findViewById(R.id.results);
                             resultsTextView.setText(result);
                             //добавляем перевод в БД
-                            datasource.createHistoryItem(System.currentTimeMillis(), textToTranslate, result, lang, 0);
-                            historyFragment.getLoaderManager().getLoader(0).onContentChanged();
-//                            ListView list = (ListView) findViewById(R.id.history_list);
-//                            ((HistoryAdapter) list.getAdapter()).notifyDataSetChanged();
+                            datasource.insertOrUpdateHistoryItem(textToTranslate, result, lang);
+                            //сообщаем листенеру, что ситуация изменилась
+                            onChangeHistoryListener.onChange();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -281,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.e("Error: ", error.getMessage());
                 Toast.makeText(MainActivity.this, "HTTP ERROR", Toast.LENGTH_SHORT).show();
-                                                                                                                                        }
+            }
         });
 
         //Add requests to RequestQueue to execute
@@ -305,378 +248,557 @@ public class MainActivity extends AppCompatActivity {
         int langFromId = (int) spinnerLangFrom.getSelectedItemId();
         int langToId = (int) spinnerLangTo.getSelectedItemId();
 
-//        String[] languages = new String[] {"en", "ru", "az", "sq", "am"}
-        //делать запросом
-
         String langFrom;
         String langTo;
         switch (langFromId) {
-            case 0: langFrom = "en";
+            case 0:
+                langFrom = "en";
                 break;
-            case 1: langFrom = "ru";
+            case 1:
+                langFrom = "ru";
                 break;
-            case 2: langFrom = "az";
+            case 2:
+                langFrom = "az";
                 break;
-            case 3: langFrom = "sq";
+            case 3:
+                langFrom = "sq";
                 break;
-            case 4: langFrom = "am";
+            case 4:
+                langFrom = "am";
                 break;
-            case 5: langFrom = "ar";
+            case 5:
+                langFrom = "ar";
                 break;
-            case 6: langFrom = "hy";
+            case 6:
+                langFrom = "hy";
                 break;
-            case 7: langFrom = "af";
+            case 7:
+                langFrom = "af";
                 break;
-            case 8: langFrom = "eu";
+            case 8:
+                langFrom = "eu";
                 break;
-            case 9: langFrom = "ba";
+            case 9:
+                langFrom = "ba";
                 break;
-            case 10: langFrom = "be";
+            case 10:
+                langFrom = "be";
                 break;
-            case 11: langFrom = "bn";
+            case 11:
+                langFrom = "bn";
                 break;
-            case 12: langFrom = "bg";
+            case 12:
+                langFrom = "bg";
                 break;
-            case 13: langFrom = "bs";
+            case 13:
+                langFrom = "bs";
                 break;
-            case 14: langFrom = "cy";
+            case 14:
+                langFrom = "cy";
                 break;
-            case 15: langFrom = "hu";
+            case 15:
+                langFrom = "hu";
                 break;
-            case 16: langFrom = "vi";
+            case 16:
+                langFrom = "vi";
                 break;
-            case 17: langFrom = "ht";
+            case 17:
+                langFrom = "ht";
                 break;
-            case 18: langFrom = "gl";
+            case 18:
+                langFrom = "gl";
                 break;
-            case 19: langFrom = "nl";
+            case 19:
+                langFrom = "nl";
                 break;
-            case 20: langFrom = "mrj";
+            case 20:
+                langFrom = "mrj";
                 break;
-            case 21: langFrom = "el";
+            case 21:
+                langFrom = "el";
                 break;
-            case 22: langFrom = "ka";
+            case 22:
+                langFrom = "ka";
                 break;
-            case 23: langFrom = "gu";
+            case 23:
+                langFrom = "gu";
                 break;
-            case 24: langFrom = "da";
+            case 24:
+                langFrom = "da";
                 break;
-            case 25: langFrom = "he";
+            case 25:
+                langFrom = "he";
                 break;
-            case 26: langFrom = "yi";
+            case 26:
+                langFrom = "yi";
                 break;
-            case 27: langFrom = "id";
+            case 27:
+                langFrom = "id";
                 break;
-            case 28: langFrom = "ga";
+            case 28:
+                langFrom = "ga";
                 break;
-            case 29: langFrom = "it";
+            case 29:
+                langFrom = "it";
                 break;
-            case 30: langFrom = "is";
+            case 30:
+                langFrom = "is";
                 break;
-            case 31: langFrom = "es";
+            case 31:
+                langFrom = "es";
                 break;
-            case 32: langFrom = "kk";
+            case 32:
+                langFrom = "kk";
                 break;
-            case 33: langFrom = "kn";
+            case 33:
+                langFrom = "kn";
                 break;
-            case 34: langFrom = "ca";
+            case 34:
+                langFrom = "ca";
                 break;
-            case 35: langFrom = "ky";
+            case 35:
+                langFrom = "ky";
                 break;
-            case 36: langFrom = "zh";
+            case 36:
+                langFrom = "zh";
                 break;
-            case 37: langFrom = "ko";
+            case 37:
+                langFrom = "ko";
                 break;
-            case 38: langFrom = "xh";
+            case 38:
+                langFrom = "xh";
                 break;
-            case 39: langFrom = "la";
+            case 39:
+                langFrom = "la";
                 break;
-            case 40: langFrom = "lv";
+            case 40:
+                langFrom = "lv";
                 break;
-            case 41: langFrom = "lt";
+            case 41:
+                langFrom = "lt";
                 break;
-            case 42: langFrom = "lb";
+            case 42:
+                langFrom = "lb";
                 break;
-            case 43: langFrom = "mg";
+            case 43:
+                langFrom = "mg";
                 break;
-            case 44: langFrom = "ms";
+            case 44:
+                langFrom = "ms";
                 break;
-            case 45: langFrom = "ml";
+            case 45:
+                langFrom = "ml";
                 break;
-            case 46: langFrom = "mt";
+            case 46:
+                langFrom = "mt";
                 break;
-            case 47: langFrom = "mk";
+            case 47:
+                langFrom = "mk";
                 break;
-            case 48: langFrom = "mi";
+            case 48:
+                langFrom = "mi";
                 break;
-            case 49: langFrom = "mr";
+            case 49:
+                langFrom = "mr";
                 break;
-            case 50: langFrom = "mhr";
+            case 50:
+                langFrom = "mhr";
                 break;
-            case 51: langFrom = "mn";
+            case 51:
+                langFrom = "mn";
                 break;
-            case 52: langFrom = "de";
+            case 52:
+                langFrom = "de";
                 break;
-            case 53: langFrom = "ne";
+            case 53:
+                langFrom = "ne";
                 break;
-            case 54: langFrom = "no";
+            case 54:
+                langFrom = "no";
                 break;
-            case 55: langFrom = "pa";
+            case 55:
+                langFrom = "pa";
                 break;
-            case 56: langFrom = "pap";
+            case 56:
+                langFrom = "pap";
                 break;
-            case 57: langFrom = "fa";
+            case 57:
+                langFrom = "fa";
                 break;
-            case 58: langFrom = "pl";
+            case 58:
+                langFrom = "pl";
                 break;
-            case 59: langFrom = "pt";
+            case 59:
+                langFrom = "pt";
                 break;
-            case 60: langFrom = "ro";
+            case 60:
+                langFrom = "ro";
                 break;
-            case 61: langFrom = "ceb";
+            case 61:
+                langFrom = "ceb";
                 break;
-            case 62: langFrom = "sr";
+            case 62:
+                langFrom = "sr";
                 break;
-            case 63: langFrom = "si";
+            case 63:
+                langFrom = "si";
                 break;
-            case 64: langFrom = "sk";
+            case 64:
+                langFrom = "sk";
                 break;
-            case 65: langFrom = "sl";
+            case 65:
+                langFrom = "sl";
                 break;
-            case 66: langFrom = "sw";
+            case 66:
+                langFrom = "sw";
                 break;
-            case 67: langFrom = "su";
+            case 67:
+                langFrom = "su";
                 break;
-            case 68: langFrom = "tg";
+            case 68:
+                langFrom = "tg";
                 break;
-            case 69: langFrom = "th";
+            case 69:
+                langFrom = "th";
                 break;
-            case 70: langFrom = "tl";
+            case 70:
+                langFrom = "tl";
                 break;
-            case 71: langFrom = "ta";
+            case 71:
+                langFrom = "ta";
                 break;
-            case 72: langFrom = "tt";
+            case 72:
+                langFrom = "tt";
                 break;
-            case 73: langFrom = "te";
+            case 73:
+                langFrom = "te";
                 break;
-            case 74: langFrom = "tr";
+            case 74:
+                langFrom = "tr";
                 break;
-            case 75: langFrom = "udm";
+            case 75:
+                langFrom = "udm";
                 break;
-            case 76: langFrom = "uz";
+            case 76:
+                langFrom = "uz";
                 break;
-            case 77: langFrom = "uk";
+            case 77:
+                langFrom = "uk";
                 break;
-            case 78: langFrom = "ur";
+            case 78:
+                langFrom = "ur";
                 break;
-            case 79: langFrom = "fi";
+            case 79:
+                langFrom = "fi";
                 break;
-            case 80: langFrom = "fr";
+            case 80:
+                langFrom = "fr";
                 break;
-            case 81: langFrom = "hi";
+            case 81:
+                langFrom = "hi";
                 break;
-            case 82: langFrom = "hr";
+            case 82:
+                langFrom = "hr";
                 break;
-            case 83: langFrom = "cs";
+            case 83:
+                langFrom = "cs";
                 break;
-            case 84: langFrom = "sv";
+            case 84:
+                langFrom = "sv";
                 break;
-            case 85: langFrom = "gd";
+            case 85:
+                langFrom = "gd";
                 break;
-            case 86: langFrom = "et";
+            case 86:
+                langFrom = "et";
                 break;
-            case 87: langFrom = "eo";
+            case 87:
+                langFrom = "eo";
                 break;
-            case 88: langFrom = "jv";
+            case 88:
+                langFrom = "jv";
                 break;
-            case 89: langFrom = "ja";
+            case 89:
+                langFrom = "ja";
                 break;
-            default: langFrom = "";
+            default:
+                langFrom = "";
                 break;
         }
 
         switch (langToId) {
-            case 0: langTo = "en";
+            case 0:
+                langTo = "en";
                 break;
-            case 1: langTo = "ru";
+            case 1:
+                langTo = "ru";
                 break;
-            case 2: langTo = "az";
+            case 2:
+                langTo = "az";
                 break;
-            case 3: langTo = "sq";
+            case 3:
+                langTo = "sq";
                 break;
-            case 4: langTo = "am";
+            case 4:
+                langTo = "am";
                 break;
-            case 5: langTo = "ar";
+            case 5:
+                langTo = "ar";
                 break;
-            case 6: langTo = "hy";
+            case 6:
+                langTo = "hy";
                 break;
-            case 7: langTo = "af";
+            case 7:
+                langTo = "af";
                 break;
-            case 8: langTo = "eu";
+            case 8:
+                langTo = "eu";
                 break;
-            case 9: langTo = "ba";
+            case 9:
+                langTo = "ba";
                 break;
-            case 10: langTo = "be";
+            case 10:
+                langTo = "be";
                 break;
-            case 11: langTo = "bn";
+            case 11:
+                langTo = "bn";
                 break;
-            case 12: langTo = "bg";
+            case 12:
+                langTo = "bg";
                 break;
-            case 13: langTo = "bs";
+            case 13:
+                langTo = "bs";
                 break;
-            case 14: langTo = "cy";
+            case 14:
+                langTo = "cy";
                 break;
-            case 15: langTo = "hu";
+            case 15:
+                langTo = "hu";
                 break;
-            case 16: langTo = "vi";
+            case 16:
+                langTo = "vi";
                 break;
-            case 17: langTo = "ht";
+            case 17:
+                langTo = "ht";
                 break;
-            case 18: langTo = "gl";
+            case 18:
+                langTo = "gl";
                 break;
-            case 19: langTo = "nl";
+            case 19:
+                langTo = "nl";
                 break;
-            case 20: langTo = "mrj";
+            case 20:
+                langTo = "mrj";
                 break;
-            case 21: langTo = "el";
+            case 21:
+                langTo = "el";
                 break;
-            case 22: langTo = "ka";
+            case 22:
+                langTo = "ka";
                 break;
-            case 23: langTo = "gu";
+            case 23:
+                langTo = "gu";
                 break;
-            case 24: langTo = "da";
+            case 24:
+                langTo = "da";
                 break;
-            case 25: langTo = "he";
+            case 25:
+                langTo = "he";
                 break;
-            case 26: langTo = "yi";
+            case 26:
+                langTo = "yi";
                 break;
-            case 27: langTo = "id";
+            case 27:
+                langTo = "id";
                 break;
-            case 28: langTo = "ga";
+            case 28:
+                langTo = "ga";
                 break;
-            case 29: langTo = "it";
+            case 29:
+                langTo = "it";
                 break;
-            case 30: langTo = "is";
+            case 30:
+                langTo = "is";
                 break;
-            case 31: langTo = "es";
+            case 31:
+                langTo = "es";
                 break;
-            case 32: langTo = "kk";
+            case 32:
+                langTo = "kk";
                 break;
-            case 33: langTo = "kn";
+            case 33:
+                langTo = "kn";
                 break;
-            case 34: langTo = "ca";
+            case 34:
+                langTo = "ca";
                 break;
-            case 35: langTo = "ky";
+            case 35:
+                langTo = "ky";
                 break;
-            case 36: langTo = "zh";
+            case 36:
+                langTo = "zh";
                 break;
-            case 37: langTo = "ko";
+            case 37:
+                langTo = "ko";
                 break;
-            case 38: langTo = "xh";
+            case 38:
+                langTo = "xh";
                 break;
-            case 39: langTo = "la";
+            case 39:
+                langTo = "la";
                 break;
-            case 40: langTo = "lv";
+            case 40:
+                langTo = "lv";
                 break;
-            case 41: langTo = "lt";
+            case 41:
+                langTo = "lt";
                 break;
-            case 42: langTo = "lb";
+            case 42:
+                langTo = "lb";
                 break;
-            case 43: langTo = "mg";
+            case 43:
+                langTo = "mg";
                 break;
-            case 44: langTo = "ms";
+            case 44:
+                langTo = "ms";
                 break;
-            case 45: langTo = "ml";
+            case 45:
+                langTo = "ml";
                 break;
-            case 46: langTo = "mt";
+            case 46:
+                langTo = "mt";
                 break;
-            case 47: langTo = "mk";
+            case 47:
+                langTo = "mk";
                 break;
-            case 48: langTo = "mi";
+            case 48:
+                langTo = "mi";
                 break;
-            case 49: langTo = "mr";
+            case 49:
+                langTo = "mr";
                 break;
-            case 50: langTo = "mhr";
+            case 50:
+                langTo = "mhr";
                 break;
-            case 51: langTo = "mn";
+            case 51:
+                langTo = "mn";
                 break;
-            case 52: langTo = "de";
+            case 52:
+                langTo = "de";
                 break;
-            case 53: langTo = "ne";
+            case 53:
+                langTo = "ne";
                 break;
-            case 54: langTo = "no";
+            case 54:
+                langTo = "no";
                 break;
-            case 55: langTo = "pa";
+            case 55:
+                langTo = "pa";
                 break;
-            case 56: langTo = "pap";
+            case 56:
+                langTo = "pap";
                 break;
-            case 57: langTo = "fa";
+            case 57:
+                langTo = "fa";
                 break;
-            case 58: langTo = "pl";
+            case 58:
+                langTo = "pl";
                 break;
-            case 59: langTo = "pt";
+            case 59:
+                langTo = "pt";
                 break;
-            case 60: langTo = "ro";
+            case 60:
+                langTo = "ro";
                 break;
-            case 61: langTo = "ceb";
+            case 61:
+                langTo = "ceb";
                 break;
-            case 62: langTo = "sr";
+            case 62:
+                langTo = "sr";
                 break;
-            case 63: langTo = "si";
+            case 63:
+                langTo = "si";
                 break;
-            case 64: langTo = "sk";
+            case 64:
+                langTo = "sk";
                 break;
-            case 65: langTo = "sl";
+            case 65:
+                langTo = "sl";
                 break;
-            case 66: langTo = "sw";
+            case 66:
+                langTo = "sw";
                 break;
-            case 67: langTo = "su";
+            case 67:
+                langTo = "su";
                 break;
-            case 68: langTo = "tg";
+            case 68:
+                langTo = "tg";
                 break;
-            case 69: langTo = "th";
+            case 69:
+                langTo = "th";
                 break;
-            case 70: langTo = "tl";
+            case 70:
+                langTo = "tl";
                 break;
-            case 71: langTo = "ta";
+            case 71:
+                langTo = "ta";
                 break;
-            case 72: langTo = "tt";
+            case 72:
+                langTo = "tt";
                 break;
-            case 73: langTo = "te";
+            case 73:
+                langTo = "te";
                 break;
-            case 74: langTo = "tr";
+            case 74:
+                langTo = "tr";
                 break;
-            case 75: langTo = "udm";
+            case 75:
+                langTo = "udm";
                 break;
-            case 76: langTo = "uz";
+            case 76:
+                langTo = "uz";
                 break;
-            case 77: langTo = "uk";
+            case 77:
+                langTo = "uk";
                 break;
-            case 78: langTo = "ur";
+            case 78:
+                langTo = "ur";
                 break;
-            case 79: langTo = "fi";
+            case 79:
+                langTo = "fi";
                 break;
-            case 80: langTo = "fr";
+            case 80:
+                langTo = "fr";
                 break;
-            case 81: langTo = "hi";
+            case 81:
+                langTo = "hi";
                 break;
-            case 82: langTo = "hr";
+            case 82:
+                langTo = "hr";
                 break;
-            case 83: langTo = "cs";
+            case 83:
+                langTo = "cs";
                 break;
-            case 84: langTo = "sv";
+            case 84:
+                langTo = "sv";
                 break;
-            case 85: langTo = "gd";
+            case 85:
+                langTo = "gd";
                 break;
-            case 86: langTo = "et";
+            case 86:
+                langTo = "et";
                 break;
-            case 87: langTo = "eo";
+            case 87:
+                langTo = "eo";
                 break;
-            case 88: langTo = "jv";
+            case 88:
+                langTo = "jv";
                 break;
-            case 89: langTo = "ja";
+            case 89:
+                langTo = "ja";
                 break;
-            default: langTo = "";
+            default:
+                langTo = "";
                 break;
         }
 
